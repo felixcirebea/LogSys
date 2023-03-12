@@ -18,7 +18,6 @@ public class OrderEntity {
     private LocalDate deliveryDate;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    @Enumerated(EnumType.STRING)
-    private OrderStatus lastUpdated;
+    private LocalDate lastUpdated;
 
 }
