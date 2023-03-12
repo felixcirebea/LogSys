@@ -17,11 +17,11 @@ public class CompanyInfoContributor implements InfoContributor {
 
     @Override
     public void contribute(Info.Builder builder) {
-        Map<String, String> companyStats = new HashMap<>();
-        companyStats.put("company-profit", String.valueOf(totalProfit));
-        companyStats.put("current-date", String.valueOf(currentDate));
 
-        builder.withDetail("company", companyStats);
+        builder.withDetail("company", Map.of(
+                "company-profit", String.valueOf(totalProfit),
+                "current-date", String.valueOf(currentDate))
+        );
     }
 
     public synchronized void addProfit(Integer value) {
