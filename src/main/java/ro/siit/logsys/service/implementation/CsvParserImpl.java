@@ -7,12 +7,14 @@ import org.springframework.stereotype.Component;
 import ro.siit.logsys.entity.DestinationEntity;
 import ro.siit.logsys.entity.OrderEntity;
 import ro.siit.logsys.enums.OrderStatus;
+import ro.siit.logsys.exception.EntryNotFoundException;
+import ro.siit.logsys.exception.InputFileException;
+import ro.siit.logsys.helper.CompanyInfoContributor;
 import ro.siit.logsys.repository.DestinationRepository;
 import ro.siit.logsys.repository.OrderRepository;
 import ro.siit.logsys.service.ICsvParser;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -28,29 +30,33 @@ public class CsvParserImpl implements ICsvParser {
 
     private final DestinationRepository destinationRepository;
     private final OrderRepository orderRepository;
+    private final CompanyInfoContributor infoContributor;
 
     @Value("classpath:/input-files/destinations.csv")
     private Resource destinationsResource;
+
     @Value("classpath:/input-files/orders.csv")
     private Resource ordersResource;
 
     private final List<DestinationEntity> destinations = new ArrayList<>();
     private final List<OrderEntity> orders = new ArrayList<>();
 
-    public CsvParserImpl(DestinationRepository destinationRepository, OrderRepository orderRepository) {
+    public CsvParserImpl(DestinationRepository destinationRepository, OrderRepository orderRepository,
+                         CompanyInfoContributor infoContributor) {
         this.destinationRepository = destinationRepository;
         this.orderRepository = orderRepository;
+        this.infoContributor = infoContributor;
     }
 
     @Override
-    public void run() {
+    public void run() throws InputFileException, EntryNotFoundException {
         populateDbTable(getPath(destinationsResource), DestinationEntity.class);
         populateDbTable(getPath(ordersResource), OrderEntity.class);
 
         log.info("Database tables successfully populated!");
     }
 
-    private <T> void populateDbTable(String filePath, Class<T> clazz) {
+    private <T> void populateDbTable(String filePath, Class<T> clazz) throws InputFileException, EntryNotFoundException {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -63,21 +69,21 @@ public class CsvParserImpl implements ICsvParser {
                     orderRepository.saveAll(orders);
                 }
             }
-        } catch (FileNotFoundException e) { //TODO treat exceptions
-            throw new RuntimeException(e);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error(e.getMessage());
+            throw new InputFileException("Input file error!");
         }
     }
 
-    private void generateOrdersCollection(String line) {
+    private void generateOrdersCollection(String line) throws EntryNotFoundException {
 
         String[] split = line.split(",");
         OrderEntity entity = new OrderEntity();
 
         Optional<DestinationEntity> destination = destinationRepository.findByName(split[0]);
         if (destination.isEmpty()) {
-            throw new RuntimeException(String.format("Destination called %s not found in database", split[0]));
+            log.error(String.format("Destination called %s not found in database", split[0]));
+            throw new EntryNotFoundException(String.format("Destination called %s not found in database", split[0]));
         }
 
         entity.setDestination(destination.get());
@@ -86,12 +92,12 @@ public class CsvParserImpl implements ICsvParser {
         entity.setDeliveryDate(LocalDate.parse(split[1], formatter));
 
         entity.setStatus(OrderStatus.NEW);
-        entity.setLastUpdated(OrderStatus.NEW);
+        entity.setLastUpdated(infoContributor.getCurrentDate());
 
         orders.add(entity);
     }
 
-    private void generateDestinationsCollection(String line) {
+    private void generateDestinationsCollection(String line) throws InputFileException {
 
         String[] split = line.split(",");
         DestinationEntity entity = new DestinationEntity();
@@ -100,17 +106,19 @@ public class CsvParserImpl implements ICsvParser {
         try {
             entity.setDistance(Integer.parseInt(split[1]));
         } catch (NumberFormatException e) {
-            throw new RuntimeException(e);
+            log.error(e.getMessage());
+            throw new InputFileException("Input file format error!");
         }
 
         destinations.add(entity);
     }
 
-    private String getPath(Resource resource) {
+    private String getPath(Resource resource) throws InputFileException {
         try {
             return Paths.get(resource.getURI()).toString();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error(e.getMessage());
+            throw new InputFileException("Input file path error!");
         }
     }
 
