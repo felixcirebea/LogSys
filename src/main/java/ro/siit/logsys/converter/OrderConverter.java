@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import ro.siit.logsys.dto.OrderDto;
 import ro.siit.logsys.entity.OrderEntity;
 import ro.siit.logsys.enums.OrderStatus;
+import ro.siit.logsys.helper.CompanyInfoContributor;
 import ro.siit.logsys.repository.DestinationRepository;
 
 import java.time.LocalDate;
@@ -17,9 +18,11 @@ import java.util.List;
 public class OrderConverter {
 
     private final DestinationRepository destinationRepository;
+    private final CompanyInfoContributor infoContributor;
 
-    public OrderConverter(DestinationRepository destinationRepository) {
+    public OrderConverter(DestinationRepository destinationRepository, CompanyInfoContributor infoContributor) {
         this.destinationRepository = destinationRepository;
+        this.infoContributor = infoContributor;
     }
 
     public List<OrderEntity> fromDtoToEntity(List<OrderDto> orderDtos) {
@@ -28,10 +31,9 @@ public class OrderConverter {
         orderDtos.forEach(orderDto -> {
             OrderEntity entity = new OrderEntity();
             entity.setStatus(OrderStatus.NEW);
-            entity.setLastUpdated(OrderStatus.NEW);
+            entity.setLastUpdated(infoContributor.getCurrentDate());
             entity.setDestination(destinationRepository.findByName(orderDto.getDestination()).get());
             entity.setDeliveryDate(fromStringToLocalDate(orderDto.getDeliveryDate()));
-
             toReturn.add(entity);
         });
 
