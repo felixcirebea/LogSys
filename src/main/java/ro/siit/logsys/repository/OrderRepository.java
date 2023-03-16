@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface OrderRepository extends CrudRepository<OrderEntity, Long> {
+public interface OrderRepository extends CrudRepository<OrderEntity, Long>{
 
     @Modifying
     @Query(value = "UPDATE orders o SET o.status = :status, o.lastUpdated = :currentDate WHERE o.id = :orderId")

@@ -1,6 +1,5 @@
 package ro.siit.logsys.converter;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ro.siit.logsys.dto.OrderDto;
 import ro.siit.logsys.entity.OrderEntity;
@@ -14,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@Slf4j
 public class OrderConverter {
 
     private final DestinationRepository destinationRepository;

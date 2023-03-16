@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import ro.siit.logsys.entity.DestinationEntity;
 import ro.siit.logsys.entity.OrderEntity;
 import ro.siit.logsys.enums.OrderStatus;
-import ro.siit.logsys.exception.EntryNotFoundException;
+import ro.siit.logsys.exception.DataNotFound;
 import ro.siit.logsys.exception.InputFileException;
 import ro.siit.logsys.helper.CompanyInfoContributor;
 import ro.siit.logsys.repository.DestinationRepository;
@@ -49,14 +49,15 @@ public class CsvParserImpl implements ICsvParser {
     }
 
     @Override
-    public void run() throws InputFileException, EntryNotFoundException {
+    public void run() throws InputFileException, DataNotFound {
         populateDbTable(getPath(destinationsResource), DestinationEntity.class);
         populateDbTable(getPath(ordersResource), OrderEntity.class);
 
         log.info("Database tables successfully populated!");
     }
 
-    private <T> void populateDbTable(String filePath, Class<T> clazz) throws InputFileException, EntryNotFoundException {
+    private <T> void populateDbTable(String filePath, Class<T> clazz)
+            throws InputFileException, DataNotFound {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -75,7 +76,7 @@ public class CsvParserImpl implements ICsvParser {
         }
     }
 
-    private void generateOrdersCollection(String line) throws EntryNotFoundException {
+    private void generateOrdersCollection(String line) throws DataNotFound {
 
         String[] split = line.split(",");
         OrderEntity entity = new OrderEntity();
@@ -83,7 +84,7 @@ public class CsvParserImpl implements ICsvParser {
         Optional<DestinationEntity> destination = destinationRepository.findByName(split[0]);
         if (destination.isEmpty()) {
             log.error(String.format("Destination called %s not found in database", split[0]));
-            throw new EntryNotFoundException(String.format("Destination called %s not found in database", split[0]));
+            throw new DataNotFound(String.format("Destination called %s not found in database", split[0]));
         }
 
         entity.setDestination(destination.get());
