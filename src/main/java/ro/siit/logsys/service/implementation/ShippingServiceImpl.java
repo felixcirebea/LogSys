@@ -38,7 +38,6 @@ public class ShippingServiceImpl implements IShippingService {
 
     @Override
     public void advanceDate() throws RunningThreadException {
-
         if (executor.getActiveCount() != 0) {
             throw new RunningThreadException(String.format(
                     "Deliveries for %s not finished", infoContributor.getCurrentDate())
@@ -46,12 +45,10 @@ public class ShippingServiceImpl implements IShippingService {
         }
 
         infoContributor.incrementDate();
-
         LocalDate currentDate = infoContributor.getCurrentDate();
         log.info("New day starting: " + currentDate);
 
         List<OrderEntity> ordersByDeliveryDate = orderRepository.findAllByDeliveryDate(currentDate);
-
         Map<DestinationEntity, List<OrderEntity>> ordersGroupedByDestination = ordersByDeliveryDate.stream()
                 .collect(Collectors.groupingBy(OrderEntity::getDestination));
 

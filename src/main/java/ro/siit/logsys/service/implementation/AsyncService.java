@@ -7,14 +7,13 @@ import ro.siit.logsys.entity.DestinationEntity;
 import ro.siit.logsys.enums.OrderStatus;
 import ro.siit.logsys.helper.CompanyInfoContributor;
 import ro.siit.logsys.repository.OrderRepository;
-import ro.siit.logsys.service.IAsyncService;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Slf4j
-public class AsyncService implements IAsyncService {
+public class AsyncService {
     private final OrderRepository orderRepository;
     private final CompanyInfoContributor infoContributor;
 
@@ -25,7 +24,6 @@ public class AsyncService implements IAsyncService {
 
     @Async("deliveryThread")
     public void startDeliveries(DestinationEntity destination, List<Long> orderIds) {
-
         log.info(String.format("Starting %s deliveries for %s on %s for %s km",
                 orderIds.size(), destination.getName(), Thread.currentThread().getName(), destination.getDistance()));
 
@@ -45,12 +43,9 @@ public class AsyncService implements IAsyncService {
                 orderRepository.save(entity);
             }
         });
-
         int deliveredOrders = orderIds.size() - canceledCount.intValue();
         infoContributor.addProfit(deliveredOrders * destination.getDistance());
 
         log.info(String.format("%s deliveries completed for %s", deliveredOrders, destination.getName()));
     }
-
-
 }

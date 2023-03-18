@@ -16,7 +16,6 @@ public class CompanyInfoContributor implements InfoContributor {
 
     @Override
     public void contribute(Info.Builder builder) {
-
         builder.withDetail("company", Map.of(
                 "company-profit", String.valueOf(totalProfit),
                 "current-date", String.valueOf(currentDate))
@@ -27,7 +26,7 @@ public class CompanyInfoContributor implements InfoContributor {
         this.totalProfit += value;
     }
 
-    public synchronized void incrementDate() {
+    public void incrementDate() {
         this.currentDate = currentDate.plusDays(1);
     }
 }

@@ -23,7 +23,7 @@ public class OrderConverter {
         this.infoContributor = infoContributor;
     }
 
-    public List<OrderEntity> fromDtoToEntity(List<OrderDto> orderDtos) {
+    public List<OrderEntity> fromDtosToEntities(List<OrderDto> orderDtos) {
         List<OrderEntity> toReturn = new ArrayList<>();
 
         orderDtos.forEach(orderDto -> {
@@ -38,7 +38,7 @@ public class OrderConverter {
         return toReturn;
     }
 
-    public List<OrderDto> fromEntityToDto(List<OrderEntity> orderEntities) {
+    public List<OrderDto> fromEntitiesToDtos(List<OrderEntity> orderEntities) {
         List<OrderDto> toReturn = new ArrayList<>();
 
         orderEntities.forEach(orderEntity -> {

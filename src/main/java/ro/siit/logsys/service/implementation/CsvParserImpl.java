@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import ro.siit.logsys.entity.DestinationEntity;
 import ro.siit.logsys.entity.OrderEntity;
 import ro.siit.logsys.enums.OrderStatus;
-import ro.siit.logsys.exception.DataNotFound;
 import ro.siit.logsys.exception.InputFileException;
 import ro.siit.logsys.helper.CompanyInfoContributor;
 import ro.siit.logsys.repository.DestinationRepository;
@@ -22,7 +21,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @Slf4j
@@ -34,7 +32,6 @@ public class CsvParserImpl implements ICsvParser {
 
     @Value("classpath:/input-files/destinations.csv")
     private Resource destinationsResource;
-
     @Value("classpath:/input-files/orders.csv")
     private Resource ordersResource;
 
@@ -49,7 +46,7 @@ public class CsvParserImpl implements ICsvParser {
     }
 
     @Override
-    public void run() throws InputFileException, DataNotFound {
+    public void run() throws InputFileException {
         populateDbTable(getPath(destinationsResource), DestinationEntity.class);
         populateDbTable(getPath(ordersResource), OrderEntity.class);
 
@@ -57,7 +54,7 @@ public class CsvParserImpl implements ICsvParser {
     }
 
     private <T> void populateDbTable(String filePath, Class<T> clazz)
-            throws InputFileException, DataNotFound {
+            throws InputFileException {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -71,27 +68,20 @@ public class CsvParserImpl implements ICsvParser {
                 }
             }
         } catch (IOException e) {
-            log.error(e.getMessage());
             throw new InputFileException("Input file error!");
         }
     }
 
-    private void generateOrdersCollection(String line) throws DataNotFound {
-
+    private void generateOrdersCollection(String line) throws InputFileException {
         String[] split = line.split(",");
         OrderEntity entity = new OrderEntity();
 
-        Optional<DestinationEntity> destination = destinationRepository.findByName(split[0]);
-        if (destination.isEmpty()) {
-            log.error(String.format("Destination called %s not found in database", split[0]));
-            throw new DataNotFound(String.format("Destination called %s not found in database", split[0]));
-        }
+        DestinationEntity destination = destinationRepository.findByName(split[0])
+                .orElseThrow(() -> new InputFileException(String.format("Destination called %s not found in database", split[0])));
 
-        entity.setDestination(destination.get());
-
+        entity.setDestination(destination);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         entity.setDeliveryDate(LocalDate.parse(split[1], formatter));
-
         entity.setStatus(OrderStatus.NEW);
         entity.setLastUpdated(infoContributor.getCurrentDate());
 
@@ -99,7 +89,6 @@ public class CsvParserImpl implements ICsvParser {
     }
 
     private void generateDestinationsCollection(String line) throws InputFileException {
-
         String[] split = line.split(",");
         DestinationEntity entity = new DestinationEntity();
         entity.setName(split[0]);
@@ -107,10 +96,8 @@ public class CsvParserImpl implements ICsvParser {
         try {
             entity.setDistance(Integer.parseInt(split[1]));
         } catch (NumberFormatException e) {
-            log.error(e.getMessage());
             throw new InputFileException("Input file format error!");
         }
-
         destinations.add(entity);
     }
 
@@ -118,7 +105,6 @@ public class CsvParserImpl implements ICsvParser {
         try {
             return Paths.get(resource.getURI()).toString();
         } catch (IOException e) {
-            log.error(e.getMessage());
             throw new InputFileException("Input file path error!");
         }
     }

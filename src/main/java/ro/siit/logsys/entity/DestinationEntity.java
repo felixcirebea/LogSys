@@ -14,7 +14,7 @@ public class DestinationEntity {
     @Column(unique = true)
     private String name;
     private Integer distance;
-    @OneToMany(mappedBy = "destination", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "destination")
     private List<OrderEntity> orders;
 
 }

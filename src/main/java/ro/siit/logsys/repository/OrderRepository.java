@@ -27,4 +27,7 @@ public interface OrderRepository extends CrudRepository<OrderEntity, Long>{
     @Query(value = "SELECT o FROM orders o WHERE o.destination = :destination AND o.deliveryDate = :deliveryDate")
     List<OrderEntity> findAllByDestinationAndDeliveryDate(@Param("destination") DestinationEntity destination,
                                                           @Param("deliveryDate") LocalDate deliveryDate);
+
+    List<OrderEntity> findAllByDestination(DestinationEntity destination);
+
 }

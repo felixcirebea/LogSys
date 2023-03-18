@@ -1,0 +1,236 @@
+{
+	"info": {
+		"_postman_id": "68f8c7c3-0505-4945-b11b-a4ceb9401dd1",
+		"name": "Logistic-System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25064341"
+	},
+	"item": [
+		{
+			"name": "Save orders",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n    {\r\n        \"destination\": \"Cluj\",\r\n        \"deliveryDate\": \"15-12-2021\"\r\n    },\r\n    {\r\n        \"destination\": \"Bacau\",\r\n        \"deliveryDate\": \"15-12-2021\"\r\n    }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/orders/add",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"orders",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Cancel orders",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n    1,2,3,4,5,45,84,84\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/orders/cancel",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"orders",
+						"cancel"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Advance day",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/shipping/new-day",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"shipping",
+						"new-day"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get order status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/orders/status?date=15-12-2021&destination=Cluj",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"orders",
+						"status"
+					],
+					"query": [
+						{
+							"key": "date",
+							"value": "15-12-2021"
+						},
+						{
+							"key": "destination",
+							"value": "Cluj"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Save destination",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Turda\",\r\n    \"distance\": \"50\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/destinations/add",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"destinations",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update destination",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\":1,\r\n    \"name\":\"Campia\",\r\n    \"distance\":40\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/destinations/update",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"destinations",
+						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search all destinations",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/destinations/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"destinations",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search destination by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/destinations/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"destinations",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete destination by id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/destinations/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"destinations",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -9,7 +9,8 @@ import java.util.List;
 public interface IDestinationsService {
 
     Long addDestination(DestinationDto destinationDtos) throws ArgumentNotValidException;
-    Long updateDestination(DestinationDto destinationDto) throws DataNotFound;
-    List<DestinationDto> getAll();
+    Long updateDestination(DestinationDto destinationDto) throws DataNotFound, ArgumentNotValidException;
+    List<DestinationDto> getAllDestinations();
     DestinationDto getDestinationById(String destinationId) throws DataNotFound;
+    void deleteById(Long destinationId) throws DataNotFound;
 }

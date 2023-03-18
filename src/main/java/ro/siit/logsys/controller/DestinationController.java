@@ -1,7 +1,5 @@
 package ro.siit.logsys.controller;
 
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ro.siit.logsys.dto.DestinationDto;
@@ -24,32 +22,39 @@ public class DestinationController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Long> addOrder(@RequestBody @Valid DestinationDto destinationDto)
-            throws ArgumentNotValidException {
+    public ResponseEntity<Long> addOrder(@RequestBody DestinationDto destinationDto) throws ArgumentNotValidException {
         if (destinationDto.getName() == null || destinationDto.getDistance() == null) {
             throw new ArgumentNotValidException("Name and distance cannot be null!");
         }
-        return new ResponseEntity<>(destinationsService.addDestination(destinationDto), HttpStatus.OK);
+        return ResponseEntity.ok(destinationsService.addDestination(destinationDto));
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Long> updateDestination(@RequestBody @Valid DestinationDto destinationDto)
+    public ResponseEntity<Long> updateDestination(@RequestBody DestinationDto destinationDto)
             throws DataNotFound, ArgumentNotValidException {
         if (destinationDto.getId() == null) {
             throw new ArgumentNotValidException("Id cannot be null!");
         }
-        return new ResponseEntity<>(destinationsService.updateDestination(destinationDto), HttpStatus.OK);
+        return ResponseEntity.ok(destinationsService.updateDestination(destinationDto));
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<DestinationDto>> getAllDestinations() {
-        return new ResponseEntity<>(destinationsService.getAll(), HttpStatus.OK);
+        return ResponseEntity.ok(destinationsService.getAllDestinations());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<DestinationDto> getDestination(@PathVariable(name = "id") String destinationId)
             throws ArgumentNotValidException, DataNotFound {
         validator.idValidator(destinationId);
-        return new ResponseEntity<>(destinationsService.getDestinationById(destinationId), HttpStatus.OK);
+        return ResponseEntity.ok(destinationsService.getDestinationById(destinationId));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteDestination(@PathVariable(name = "id") String destinationId)
+            throws ArgumentNotValidException, DataNotFound {
+        Long id = validator.idValidator(destinationId);
+        destinationsService.deleteById(id);
+        return ResponseEntity.ok("Success");
     }
 }

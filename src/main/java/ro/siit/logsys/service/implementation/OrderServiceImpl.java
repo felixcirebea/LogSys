@@ -40,7 +40,6 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public Map<String, List<?>> saveOrder(List<OrderDto> orderDtos) {
-
         log.info(String.format("Saving %s new orders", orderDtos.size()));
 
         List<OrderDto> invalidDtos = new ArrayList<>();
@@ -48,7 +47,6 @@ public class OrderServiceImpl implements IOrderService {
 
         orderDtos.forEach(orderDto -> {
             LocalDate orderDtoDate = orderConverter.fromStringToLocalDate(orderDto.getDeliveryDate());
-
             if (orderDtoDate.isAfter(infoContributor.getCurrentDate()) &&
                     destinationRepository.findByName(orderDto.getDestination()).isPresent()) {
                 validDtos.add(orderDto);
@@ -57,10 +55,10 @@ public class OrderServiceImpl implements IOrderService {
             }
         });
 
-        List<OrderEntity> orderEntities = orderConverter.fromDtoToEntity(validDtos);
-        Iterable<OrderEntity> savedEntities = orderRepository.saveAll(orderEntities); //stream pe iterable ??
-
-        List<OrderDto> toReturn = orderConverter.fromEntityToDto((List<OrderEntity>) savedEntities);
+        List<OrderEntity> orderEntities = orderConverter.fromDtosToEntities(validDtos);
+        List<OrderEntity> savedEntities = new ArrayList<>();
+        orderRepository.saveAll(orderEntities).forEach(savedEntities::add);
+        List<OrderDto> toReturn = orderConverter.fromEntitiesToDtos(savedEntities);
 
         log.info(String.format("%s orders out of %s, where saved. %s orders are invalid!",
                 toReturn.size(), orderDtos.size(), invalidDtos.size()));
@@ -74,7 +72,6 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     @Transactional
     public Map<String, List<?>> cancelOrders(List<Long> ids) {
-
         log.info(String.format("Canceling %s orders", ids.size()));
 
         List<Long> failedIds = new ArrayList<>();
@@ -82,13 +79,11 @@ public class OrderServiceImpl implements IOrderService {
 
         ids.forEach(id -> {
             Optional<OrderEntity> order = orderRepository.findById(id);
-            if (order.isPresent() && (order.get().getStatus() != OrderStatus.DELIVERED) &&
-                    (order.get().getStatus() != OrderStatus.CANCELED)) {
+            if (order.isPresent() &&
+                    order.get().getStatus() != OrderStatus.DELIVERED &&
+                    order.get().getStatus() != OrderStatus.CANCELED) {
                 orderRepository.updateStatusAndLastUpdatedById(
-                        id,
-                        infoContributor.getCurrentDate(),
-                        OrderStatus.CANCELED
-                );
+                        id, infoContributor.getCurrentDate(), OrderStatus.CANCELED);
                 updatedIds.add(id);
             } else {
                 failedIds.add(id);
@@ -98,16 +93,11 @@ public class OrderServiceImpl implements IOrderService {
         log.info(String.format("%s out of %s orders updated. %s orders failed!",
                 updatedIds.size(), ids.size(), failedIds.size()));
 
-        return Map.of(
-                "failedIds", failedIds,
-                "updatedIds", updatedIds
-        );
+        return Map.of("failedIds", failedIds, "updatedIds", updatedIds);
     }
 
     @Override
-    public List<OrderDto> getOrderStatus(String date, String destination)
-            throws DataNotFound {
-
+    public List<OrderDto> getOrderStatus(String date, String destination) throws DataNotFound {
         LocalDate deliveryDate = infoContributor.getCurrentDate();
         List<OrderEntity> orderEntities;
 
@@ -118,12 +108,11 @@ public class OrderServiceImpl implements IOrderService {
         if (destination != null && (!destination.equals(""))) {
             DestinationEntity destinationEntity = destinationRepository.findByName(destination)
                     .orElseThrow(() -> new DataNotFound(String.format("Destination %s not found in DB!", destination)));
-
             orderEntities = orderRepository.findAllByDestinationAndDeliveryDate(destinationEntity, deliveryDate);
         } else {
             orderEntities = orderRepository.findAllByDeliveryDate(deliveryDate);
         }
 
-        return orderConverter.fromEntityToDto(orderEntities);
+        return orderConverter.fromEntitiesToDtos(orderEntities);
     }
 }
