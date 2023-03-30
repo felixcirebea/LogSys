@@ -30,7 +30,7 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, errorMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST, webRequest);
     }
 
-    @ExceptionHandler({InputFileException.class})
+    @ExceptionHandler(InputFileException.class)
     public void handleInputFileException(Exception ex) {
         log.error(ex.getMessage());
     }

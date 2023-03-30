@@ -48,7 +48,9 @@ public class ShippingServiceImpl implements IShippingService {
         LocalDate currentDate = infoContributor.getCurrentDate();
         log.info("New day starting: " + currentDate);
 
-        List<OrderEntity> ordersByDeliveryDate = orderRepository.findAllByDeliveryDate(currentDate);
+        List<OrderEntity> ordersByDeliveryDate = orderRepository.findAllByDeliveryDate(currentDate).stream()
+                .filter(order -> order.getDestination() != null)
+                .toList();
         Map<DestinationEntity, List<OrderEntity>> ordersGroupedByDestination = ordersByDeliveryDate.stream()
                 .collect(Collectors.groupingBy(OrderEntity::getDestination));
 

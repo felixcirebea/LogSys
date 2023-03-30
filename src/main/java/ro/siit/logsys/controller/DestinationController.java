@@ -22,7 +22,7 @@ public class DestinationController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Long> addOrder(@RequestBody DestinationDto destinationDto) throws ArgumentNotValidException {
+    public ResponseEntity<Long> addDestination(@RequestBody DestinationDto destinationDto) throws ArgumentNotValidException {
         if (destinationDto.getName() == null || destinationDto.getDistance() == null) {
             throw new ArgumentNotValidException("Name and distance cannot be null!");
         }
